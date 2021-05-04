@@ -2,10 +2,10 @@ import React from 'react';
 import NavBar from './NavBar.js';
 import DuckList from './DuckList.js';
 
-function Ducks() {
+function Ducks({ onLogout }) {
   return (
     <>
-      <NavBar/>
+      <NavBar onLogout={onLogout}/>
       <DuckList/>
     </>
   );

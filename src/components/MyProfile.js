@@ -2,10 +2,10 @@ import React from 'react';
 import NavBar from './NavBar.js';
 import './styles/MyProfile.css';
 
-function MyProfile({ userData: { username, email } }) {
+function MyProfile({ onLogout, userData: { username, email } }) {
   return (
     <>
-      <NavBar/>
+      <NavBar onLogout={onLogout}/>
       <div className="my-profile">
         <div className="my-profile__container">
           <div className="my-profile__header">

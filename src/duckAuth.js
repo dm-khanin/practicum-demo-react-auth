@@ -1,55 +1,39 @@
 export const BASE_URL = 'https://api.nomoreparties.co';
 
-export const register = (username, password, email) => {
-  return fetch(`${BASE_URL}/auth/local/register`, {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ username, password, email }),
-  })
-    .then((response) => {
-      return response.json();
-    })
-    .then((res) => {
-      return res;
-    })
-    .catch((err) => console.log(err));
+const checkResponse = (response) => {
+  return response.ok ? response.json() : Promise.reject(new Error(`Ошибка ${response.status}: ${response.statusText}`));
 };
 
-export const authorize = (identifier, password) => {
-  return fetch(`${BASE_URL}/auth/local`, {
+const headers = {
+  'Accept': 'application/json',
+  'Content-Type': 'application/json',
+};
+
+export const register = ({ username, password, email }) => {
+  return fetch(`${BASE_URL}/auth/local/register`, {
+    headers,
     method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    },
+    body: JSON.stringify({ username, password, email }),
+  })
+    .then(res => checkResponse(res));
+};
+
+export const authorize = ({ username: identifier, password }) => {
+  return fetch(`${BASE_URL}/auth/local`, {
+    headers,
+    method: 'POST',
     body: JSON.stringify({ identifier, password }),
   })
-    .then((response => response.json()))
-    .then((data) => {
-      if (data.user) {
-        localStorage.setItem('jwt', data.jwt);
-        return data;
-      } else {
-        return;
-      }
-    })
-    .catch(err => console.log(err));
+    .then(res => checkResponse(res));
 };
 
 export const getContent = (token) => {
   return fetch(`${BASE_URL}/users/me`, {
     method: 'GET',
     headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
+      ...headers,
       'Authorization': `Bearer ${token}`,
     },
   })
-    .then(res => res.json())
-    .then(data => data);
+    .then(res => checkResponse(res));
 };
-
-

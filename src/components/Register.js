@@ -1,93 +1,79 @@
-import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Logo from './Logo.js';
-import * as duckAuth from '../duckAuth.js';
 import './styles/Register.css';
 
-class Register extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      message: '',
-    };
+function Register({ onRegister }) {
+  const [registerData, setRegisterData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
+  const [message, setMessage] = useState('');
 
-  handleChange(e) {
+  const handleChange = (e) => {
+    setMessage('');
     const { name, value } = e.target;
-    this.setState({
+    setRegisterData({
+      ...registerData,
       [name]: value,
     });
-  }
+  };
 
-  handleSubmit(e) {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (this.state.password === this.state.confirmPassword) {
-      let { username, password, email } = this.state;
-      duckAuth.register(username, password, email).then((res) => {
-        if (res.statusCode !== 400) {
-          this.setState({
-            message: '',
-          }, () => {
-            this.props.history.push('/login');
-          });
-        } else {
-          this.setState({
-            message: 'Что-то пошло не так!',
-          });
-        }
-      });
+    const { confirmPassword, ...data } = registerData;
+    if (confirmPassword !== data.password) {
+      return setMessage('Пароли должны совпадать');
     }
-  }
 
-  render() {
-    return (
-      <div className="register">
-        <Logo title={'CryptoDucks'}/>
-        <p className="register__welcome">
-          Пожалуйста, зарегистрируйтесь.
-        </p>
-        <p className="register__error">
-          {this.state.message}
-        </p>
-        <form onSubmit={this.handleSubmit} className="register__form">
-          <label htmlFor="username">
-            Логин:
-          </label>
-          <input id="username" name="username" type="text" autoComplete="username" value={this.state.username}
-                 onChange={this.handleChange}/>
-          <label htmlFor="email">
-            Email:
-          </label>
-          <input id="email" name="email" type="email" autoComplete="email" value={this.state.email}
-                 onChange={this.handleChange}/>
-          <label htmlFor="password">
-            Пароль:
-          </label>
-          <input id="password" name="password" type="password" autoComplete="new-password" value={this.state.password}
-                 onChange={this.handleChange}/>
-          <label htmlFor="confirmPassword">
-            Подтвердите пароль:
-          </label>
-          <input id="confirmPassword" name="confirmPassword" type="password" autoComplete="new-password"
-                 value={this.state.confirmPassword} onChange={this.handleChange}/>
-          <div className="register__button-container">
-            <button type="submit" className="register__link">Зарегистрироваться</button>
-          </div>
-        </form>
-        <div className="register__signin">
-          <p>Уже зарегистрированы?</p>
-          <Link to="login" className="register__login-link">Войти</Link>
+    onRegister(data)
+      .catch(err => setMessage(err.message || 'Что-то пошло не так'));
+  };
+
+  return (
+    <div className="register">
+      <Logo title={'CryptoDucks'}/>
+      <p className="register__welcome">
+        Пожалуйста, зарегистрируйтесь.
+      </p>
+      <p className="register__error">
+        {message}
+      </p>
+      <form onSubmit={handleSubmit} className="register__form">
+        <label htmlFor="username">
+          Логин:
+        </label>
+        <input id="username" name="username" type="text" autoComplete="username" value={registerData.username} required
+               onChange={handleChange}/>
+        <label htmlFor="email">
+          Email:
+        </label>
+        <input id="email" name="email" type="email" autoComplete="email" value={registerData.email} required
+               onChange={handleChange}/>
+        <label htmlFor="password">
+          Пароль:
+        </label>
+        <input id="password" name="password" type="password" autoComplete="new-password" value={registerData.password}
+               required
+               onChange={handleChange}/>
+        <label htmlFor="confirmPassword">
+          Подтвердите пароль:
+        </label>
+        <input id="confirmPassword" name="confirmPassword" type="password" autoComplete="new-password" required
+               value={registerData.confirmPassword} onChange={handleChange}/>
+        <div className="register__button-container">
+          <button type="submit" className="register__link">Зарегистрироваться</button>
         </div>
+      </form>
+      <div className="register__signin">
+        <p>Уже зарегистрированы?</p>
+        <Link to="/login" className="register__login-link">Войти</Link>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
-export default withRouter(Register);
+export default Register;
